@@ -72,7 +72,7 @@ watch(
     () => state.votes,
     (votes) => {
       if (state.me.id && votes[state.me.id] !== undefined) {
-        state.myVote = votes[state.me.id];
+        state.myVote = votes[state.me.id] as number;
       } else {
         state.myVote = null;
       }
