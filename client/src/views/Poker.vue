@@ -64,10 +64,9 @@ const votes = ['0','1','2','3','5','8','13','21','34','55','89','?','☕'];
 
 const { state, connect, send, disconnect } = useWSInstance();
 
-// Connexion WS au montage
-onMounted(() => connect('ws://localhost:8080', user.name, roomId.value));
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'wss://poker-planning-bsd3.onrender.com';
+onMounted(() => connect(BACKEND_URL, user.name, roomId.value));
 
-// Watch pour conserver myVote après refresh / reveal
 watch(
     () => state.votes,
     (votes) => {
@@ -93,7 +92,6 @@ function resetVote() {
   send('reset_votes', {});
 }
 
-// Computed
 const revealed = computed(() => state.revealed === true);
 const hasVotes = computed(() => Object.keys(state.votes || {}).length > 0);
 
