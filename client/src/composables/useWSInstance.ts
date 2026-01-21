@@ -24,7 +24,7 @@ export const useWSInstance =
 
         let ws: WebSocket ;
 
-        function connect(url =VITE_BACKEND_URL, name: string, roomId: UnwrapRef<string | RouteParamValue[]>) {
+        function connect(url =BACKEND_URL, name: string, roomId: UnwrapRef<string | RouteParamValue[]>) {
             if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
             ws = new WebSocket(url);
@@ -75,19 +75,11 @@ export const useWSInstance =
             state.messages.push(msg);
 
             switch (msg.type) {
-
-                // =====================
-                // CONNEXION
-                // =====================
                 case 'welcome':
                     state.me.id = msg.payload.id;
                     state.me.roomId = msg.payload.roomId;
 
                     break;
-
-                // =====================
-                // ÉTAT COMPLET ROOM
-                // =====================
                 case 'room_state':
                     state.users = msg.payload.users;
                     state.votes = msg.payload.votes;
@@ -95,35 +87,27 @@ export const useWSInstance =
                     state.myVote = state.me.id ? state.votes[state.me.id] ?? null : null;
                     break;
 
-                // =====================
                 // MISE À JOUR VOTES
-                // =====================
                 case 'votes_update':
                     state.votes = msg.payload.votes;
                     state.revealed = msg.payload.revealed;
                     state.myVote = state.me.id ? state.votes[state.me.id] ?? null : null;
                     break;
 
-                // =====================
                 // REVEAL
-                // =====================
                 case 'votes_revealed':
                     state.votes = msg.payload;
                     state.revealed = true;
                     break;
 
-                // =====================
                 // RESET
-                // =====================
                 case 'votes_reset':
                     state.votes = {};
                     state.revealed = false;
                     state.myVote=null
                     break;
 
-                // =====================
                 // USERS
-                // =====================
                 case 'users_list':
                     state.users = msg.payload;
                     break;
