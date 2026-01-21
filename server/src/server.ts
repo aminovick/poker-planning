@@ -17,8 +17,8 @@ interface Room {
 
 const rooms = new Map<string, Room>()
 
-const wss = new WebSocketServer({port: 8080})
-console.log('WS server started on ws://localhost:8080')
+const PORT = Number(process.env.PORT) || 8080;
+const wss = new WebSocketServer({port: PORT})
 
 wss.on('connection', (ws) => {
     let currentUser: User | null = null
