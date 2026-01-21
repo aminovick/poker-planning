@@ -17,12 +17,14 @@ const state = reactive({
     myVote: null as number | null,
     messages: [] as ServerMessage[],
 });
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'wss://poker-planning-bsd3.onrender.com';
 export const useWSInstance =
     () => {
 
         let ws: WebSocket ;
 
-        function connect(url = 'ws://localhost:8080', name: string, roomId: UnwrapRef<string | RouteParamValue[]>) {
+        function connect(url =VITE_BACKEND_URL, name: string, roomId: UnwrapRef<string | RouteParamValue[]>) {
             if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
             ws = new WebSocket(url);
