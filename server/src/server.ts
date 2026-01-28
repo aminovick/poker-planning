@@ -1,5 +1,6 @@
 import WebSocket, {WebSocketServer} from 'ws'
 import {v4 as uuidv4} from 'uuid'
+import http from 'http'
 
 interface User {
     id: string
@@ -18,7 +19,25 @@ interface Room {
 const rooms = new Map<string, Room>()
 
 const PORT = Number(process.env.PORT) || 8080;
-const wss = new WebSocketServer({port: PORT})
+
+const PORT = Number(process.env.PORT) || 8080;
+const server = http.createServer((req, res) => {
+    if (req.url === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ status: 'ok' }))
+        return
+    }
+
+    res.writeHead(404)
+    res.end()
+})
+
+const wss = new WebSocketServer({ server })
+
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+})
+
 
 wss.on('connection', (ws) => {
     let currentUser: User | null = null
@@ -26,10 +45,8 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message.toString())
-
-            // =========================
+            
             // JOIN ROOM
-            // =========================
             if (data.type === 'join_room') {
                 const {name, roomId} = data.payload
                 const id = uuidv4()
@@ -55,10 +72,8 @@ wss.on('connection', (ws) => {
 
                 sendRoomState(room)
             }
-
-            // =========================
+            
             // VOTE
-            // =========================
             if (data.type === 'vote' && currentUser) {
                 const room = rooms.get(currentUser.roomId)!
                 room.votes[currentUser.id] = data.payload.estimate
@@ -66,9 +81,7 @@ wss.on('connection', (ws) => {
                 sendRoomState(room)
             }
 
-            // =========================
             // REVEAL
-            // =========================
             if (data.type === 'reveal_votes' && currentUser) {
                 const room = rooms.get(currentUser.roomId)!
                 room.revealed = true
@@ -76,9 +89,7 @@ wss.on('connection', (ws) => {
                 sendRoomState(room)
             }
 
-            // =========================
-            // RESET (manuel)
-            // =========================
+            // RESET
             if (data.type === 'reset_votes' && currentUser) {
                 const room = rooms.get(currentUser.roomId)!
                 room.votes = {}
@@ -87,16 +98,12 @@ wss.on('connection', (ws) => {
                 sendRoomState(room)
             }
 
-            // =========================
             // RENAME
-            // =========================
             if (data.type === 'set_name' && currentUser) {
                 currentUser.name = data.payload.name
                 sendRoomState(rooms.get(currentUser.roomId)!)
             }
-            // Dans ws.on('message')
             if (data.type === 'leave_room' && currentUser) {
-                // Fermer la connexion WS côté serveur
                 ws.close()
             }
 
@@ -121,9 +128,7 @@ wss.on('connection', (ws) => {
 })
 
 
-// =========================
 // HELPERS
-// =========================
 
 function sendRoomState(room: Room) {
     broadcastRoom(room.id, {
