@@ -3,7 +3,6 @@
 
   <UCard class="create-room">
     <div class="card-content">
-      <!-- GAUCHE -->
       <div class="left">
         <h3 class="mb-3">Commencez un nouveau Poker Planning</h3>
 
@@ -19,8 +18,7 @@
         >
            Créer la room
         </UButton>
-
-        <!-- Lien généré -->
+        
         <Transition name="fade-slide">
           <div
               v-if="roomUrl"
@@ -56,7 +54,6 @@
         </Transition>
       </div>
 
-      <!-- DROITE -->
       <div class="right">
         <img
             :src="pokerImg"
